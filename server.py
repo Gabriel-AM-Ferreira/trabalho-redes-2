@@ -23,8 +23,15 @@ class Server:
             conn.send('Nome de usuario ja existente, digite outro: '.encode())
             username = conn.recv(1024).decode()
 
+        # Pede a lista de músicas do cliente
+        conn.send(str('request_song_list '+username).encode())
+
+        song_list = conn.recv(1024).decode().split(" ")
+        if song_list[0] == "pasta_vazia":
+            song_list = "Não possui músicas"
+
         # Adiciona cliente à lista
-        self.users_list[username] = (ip, port)
+        self.users_list[username] = ((ip, port), song_list)
 
         # Envia menu de opções para o cliente
         print(self.users_list)
@@ -38,8 +45,9 @@ class Server:
                     answ = 'Lista de Usuários: \n'
                     for username in self.users_list:
                         answ += '\t Username: ' + username + \
-                                '\n\t IP: ' + str(self.users_list[username][0]) + \
-                                '\n\t Port: ' + str(self.users_list[username][1]) + \
+                                '\n\t IP: ' + str(self.users_list[username][0][0]) + \
+                                '\n\t Port: ' + str(self.users_list[username][0][1]) + \
+                                '\n\t Songs: ' + str(self.users_list[username][1]) + \
                                 '\n\n'
                 elif msg == '2':
                     self.remove_user(username)
